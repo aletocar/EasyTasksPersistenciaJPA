@@ -14,6 +14,8 @@ import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityNotFoundException;
+import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
@@ -55,7 +57,8 @@ public class PersistenciaSB implements PersistenciaSBLocal {
     }
 
     @Override
-    public void modificarUsuario(Usuario u) {
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public void modificarUsuario(Usuario u){
         try {
             if (u.getId() != null) {
                 em.merge(u);
@@ -63,29 +66,30 @@ public class PersistenciaSB implements PersistenciaSBLocal {
                 em.persist(u);
             }
         } catch (Exception e) {
-
+            throw new EntityNotFoundException();//TODO: Revisar
         }
     }
 
     @Override
-    public void borrarUsuario(Usuario u) {
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public void borrarUsuario(Usuario u) throws EntityNotFoundException{
         try {
             if (u.getId() != null) {
                 em.remove(u);
             } else {
-                //TODO: tirar el mensaje de que no existe en la db
+                throw new EntityNotFoundException();
             }
-        } catch (Exception e) {
-            System.out.println("No se pudo eliminar el usuario");
-            //TODO: Mejorar esto
+        }catch(EntityNotFoundException e){//Catcheo si se rompe la base de datos. o errores mas especificos
+            throw e;
         }
     }
 
     @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public Usuario buscarUsuario(Long id) {
         try {
             return em.find(Usuario.class, id);
-        } catch (Exception e) {
+        } catch (EntityNotFoundException e) {
             //TODO: Mejorar esto
             return null;
 
@@ -93,11 +97,12 @@ public class PersistenciaSB implements PersistenciaSBLocal {
     }
     
     @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public Usuario buscarUsuario(String username){
         try{
            return (Usuario)em.createNamedQuery("buscarUsuario").setParameter("nombreU", username).getSingleResult();
-        }catch(Exception e){
-            return null;
+        }catch(NoResultException e){
+            throw e;
         }
     }
 
