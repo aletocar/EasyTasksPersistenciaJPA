@@ -6,20 +6,25 @@
 package com.easytasks.persistencia.persistencia;
 
 import com.easytasks.persistencia.entidades.*;
+import java.security.DigestException;
 import javax.ejb.Stateless;
 import javax.ejb.LocalBean;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceException;
+import javax.validation.ConstraintViolationException;
 
 /**
  *
  * @author alumnoFI
  */
 @Stateless
-@LocalBean
-public class PersistenciaSB {
+public class PersistenciaSB implements PersistenciaSBLocal {
 
     
     @PersistenceContext(unitName = "EasyTasksPersistenciaJPAPU")
@@ -37,17 +42,19 @@ public class PersistenciaSB {
     }
     
     // <editor-fold defaultstate="collapsed" desc=" Usuario ">
-    public void agregarUsuario(Usuario u) {
-        System.out.println(em.toString());
-        System.out.println(u);
+    @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public void agregarUsuario(Usuario u) throws EntityExistsException{
         try {
             em.persist(u);
-        } catch (Exception e) {
-            System.out.println("Excepcion al agregar usuario " + e.toString() + " " + e.getMessage());
-            e.printStackTrace();
+        } catch (PersistenceException e) {
+            throw new EntityExistsException();
+        } catch (Exception e){
+            throw new EntityExistsException();
         }
     }
 
+    @Override
     public void modificarUsuario(Usuario u) {
         try {
             if (u.getId() != null) {
@@ -60,6 +67,7 @@ public class PersistenciaSB {
         }
     }
 
+    @Override
     public void borrarUsuario(Usuario u) {
         try {
             if (u.getId() != null) {
@@ -73,6 +81,7 @@ public class PersistenciaSB {
         }
     }
 
+    @Override
     public Usuario buscarUsuario(Long id) {
         try {
             return em.find(Usuario.class, id);
@@ -83,6 +92,7 @@ public class PersistenciaSB {
         }
     }
     
+    @Override
     public Usuario buscarUsuario(String username){
         try{
            return (Usuario)em.createNamedQuery("buscarUsuario").setParameter("nombreU", username).getSingleResult();
@@ -94,6 +104,7 @@ public class PersistenciaSB {
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Proyecto ">
+    @Override
     public void agregarProyecto(Proyecto p) {
         try {
             em.persist(p);
@@ -102,6 +113,7 @@ public class PersistenciaSB {
         }
     }
 
+    @Override
     public void modificarProyecto(Proyecto p) {
         try {
             if (p.getId() != null) {
@@ -114,6 +126,7 @@ public class PersistenciaSB {
         }
     }
 
+    @Override
     public void borrarProyecto(Proyecto p) {
         try {
             if (p.getId() != null) {
@@ -127,6 +140,7 @@ public class PersistenciaSB {
         }
     }
 
+    @Override
     public Proyecto buscarProyecto(Long id) {
         try {
             return em.find(Proyecto.class, id);
@@ -140,6 +154,7 @@ public class PersistenciaSB {
     // </editor-fold>
     
     //<editor-fold defaultstate="collapsed" desc=" Tarea ">
+    @Override
     public void agregarTarea(Tarea t) {
         try {
             em.persist(t);
@@ -148,6 +163,7 @@ public class PersistenciaSB {
         }
     }
 
+    @Override
     public void modificarTarea(Tarea t) {
         try {
             if (t.getId() != null) {
@@ -160,6 +176,7 @@ public class PersistenciaSB {
         }
     }
 
+    @Override
     public void borrarTarea(Tarea t) {
         try {
             if (t.getId() != null) {
@@ -173,6 +190,7 @@ public class PersistenciaSB {
         }
     }
 
+    @Override
     public Tarea buscarTarea(Long id) {
         try {
             return em.find(Tarea.class, id);
@@ -186,6 +204,7 @@ public class PersistenciaSB {
     // </editor-fold>
     
     //<editor-fold defaultstate="collapsed" desc=" Actividad ">
+    @Override
     public void agregarActividad(Actividad a) {
         try {
             em.persist(a);
@@ -194,6 +213,7 @@ public class PersistenciaSB {
         }
     }
 
+    @Override
     public void modificarActividad(Actividad a) {
         try {
             if (a.getId() != null) {
@@ -206,6 +226,7 @@ public class PersistenciaSB {
         }
     }
 
+    @Override
     public void borrarActividad(Actividad a) {
         try {
             if (a.getId() != null) {
@@ -219,6 +240,7 @@ public class PersistenciaSB {
         }
     }
     
+    @Override
     public Actividad buscarActividad(Long id){
         try{
             return em.find(Actividad.class, id);
@@ -232,6 +254,7 @@ public class PersistenciaSB {
     // </editor-fold>
     
     //<editor-fold defaultstate="collapsed" desc=" Contexto ">
+    @Override
     public void agregarContexto(Contexto c) {
         try {
             em.persist(c);
@@ -240,6 +263,7 @@ public class PersistenciaSB {
         }
     }
 
+    @Override
     public void modificarContexto(Contexto c) {
         try {
             if (c.getId() != null) {
@@ -252,6 +276,7 @@ public class PersistenciaSB {
         }
     }
 
+    @Override
     public void borrarContexto(Contexto c) {
         try {
             if (c.getId() != null) {
@@ -265,6 +290,7 @@ public class PersistenciaSB {
         }
     }
     
+    @Override
     public Contexto buscarContexto(Long id){
         try{
             return em.find(Contexto.class, id);
@@ -278,6 +304,7 @@ public class PersistenciaSB {
     // </editor-fold>
     
     //<editor-fold defaultstate="collapsed" desc=" Etiqueta ">
+    @Override
     public void agregarEtiqueta(Etiqueta e) {
         try {
             em.persist(e);
@@ -286,6 +313,7 @@ public class PersistenciaSB {
         }
     }
 
+    @Override
     public void modificarEtiqueta(Etiqueta e) {
         try {
             if (e.getId() != null) {
@@ -298,6 +326,7 @@ public class PersistenciaSB {
         }
     }
 
+    @Override
     public void borrarEtiqueta(Etiqueta e) {
         try {
             if (e.getId() != null) {
@@ -311,6 +340,7 @@ public class PersistenciaSB {
         }
     }
     
+    @Override
     public Etiqueta buscarEtiqueta(Long id){
         try{
             return em.find(Etiqueta.class, id);

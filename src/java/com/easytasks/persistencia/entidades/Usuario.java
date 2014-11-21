@@ -3,13 +3,17 @@ package com.easytasks.persistencia.entidades;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
 
@@ -18,14 +22,17 @@ import javax.validation.constraints.NotNull;
     query="select u from Usuario u where u.nombreUsuario = :nombreU"
 )})
 @Entity
+@Table(name="Usuarios")
 public class Usuario implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name="ID")
     private Long id;
     @NotNull
     private String nombre;
     @NotNull
+    @Column(unique = true)
     private String nombreUsuario;
 
     private String mail;
@@ -33,7 +40,18 @@ public class Usuario implements Serializable {
     private String contraseña;
 
     @ManyToMany()
+    @JoinTable(name="contactos", 
+            joinColumns=@JoinColumn(name="idUsuario"),
+            inverseJoinColumns = @JoinColumn(name="idContacto")
+    )
     private List<Usuario> contactos;
+    
+    @ManyToMany()
+    @JoinTable(name="contactos", 
+            joinColumns=@JoinColumn(name="idContacto"),
+            inverseJoinColumns = @JoinColumn(name="idUsuario")
+    )
+    private List<Usuario> soyContactoDe;
 
     public Long getId() {
         return id;
@@ -82,9 +100,18 @@ public class Usuario implements Serializable {
     public void setContactos(List<Usuario> contactos) {
         this.contactos = contactos;
     }
+    
+    public List<Usuario> getSoyContactoDe() {
+        return soyContactoDe;
+    }
+
+    public void setSoyContactoDe(List<Usuario> soyContactoDe) {
+        this.soyContactoDe = soyContactoDe;
+    }
 
     public Usuario() {
         this.contactos = new ArrayList<Usuario>();
+        this.soyContactoDe = new ArrayList<Usuario>();
     }
 
     public Usuario(String nombre, String nombreUsuario, String mail, String contraseña) {
