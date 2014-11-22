@@ -5,28 +5,43 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import javax.persistence.Temporal;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
+@NamedQueries({
+    @NamedQuery(name = "buscarProyecto",
+            query = "select p from Proyecto p where p.nombre = :nombreP"
+    )})
 @Entity
+@Table(name="Proyectos", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"nombre", "responsable"})
+})
 public class Proyecto implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @NotNull
+    @Column(name = "nombre")
     private String nombre;
     @NotNull
     //TODO: Chequear qué cascade hay que poner
     @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "responsable")
     private Usuario responsable;
 
     @Temporal(javax.persistence.TemporalType.DATE)
@@ -34,12 +49,14 @@ public class Proyecto implements Serializable {
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date fechaFin;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     private Contexto contexto;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY)
     private List<Usuario> usuarios;
-    
+
+    @OneToMany(mappedBy = "proyecto")
+    private List<Tarea> tareas;
 
     public Long getId() {
         return id;
@@ -97,8 +114,17 @@ public class Proyecto implements Serializable {
         this.usuarios = usuarios;
     }
 
+    public List<Tarea> getTareas() {
+        return tareas;
+    }
+
+    public void setTareas(List<Tarea> tareas) {
+        this.tareas = tareas;
+    }
+
     public Proyecto() {
         this.usuarios = new ArrayList<>();
+        this.tareas = new ArrayList<>();
     }
 
     public Proyecto(String nombre, Usuario responsable, Date fechaInicio, Date fechaFin, Contexto contexto) {
@@ -107,7 +133,8 @@ public class Proyecto implements Serializable {
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
         this.contexto = contexto;
-        this.usuarios = new ArrayList<Usuario>();
+        this.usuarios = new ArrayList<>();
+        this.tareas = new ArrayList<>();
     }
 
     @Override

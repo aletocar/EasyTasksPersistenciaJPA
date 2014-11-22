@@ -52,28 +52,6 @@ public class TransformadorADtoSB {
         return ret;
     }
     
-    public DtoActividad transformarActividad(Actividad a){
-        DtoActividad ret = new DtoActividad();
-        ret.setAutomatica(a.isAutomatica());
-        ret.setId(a.getId());
-        ret.setNombre(a.getNombre());
-        ret.setCompletado(a.isCompletado());
-        ret.setNombre(a.getNombre());
-        ret.setPrioridad(a.getPrioridad());
-        List<DtoEtiqueta> listaEtiquetas = new ArrayList<DtoEtiqueta>();
-        List<DtoUsuario> listaUsuarios = new ArrayList<DtoUsuario>();
-        for(Etiqueta e: a.getListaEtiquetas()){
-            DtoEtiqueta dto = transformarEtiqueta(e);
-            listaEtiquetas.add(dto);
-        }
-        for(Usuario u: a.getListaResponsables()){
-            DtoUsuario dto = transformarUsuarioLista(u);
-            listaUsuarios.add(dto);
-        }
-        ret.setListaEtiquetas(listaEtiquetas);
-        ret.setListaResponsables(listaUsuarios);
-        return ret;
-    }
     
     public DtoEtiqueta transformarEtiqueta(Etiqueta e){
         DtoEtiqueta ret = new DtoEtiqueta();
@@ -107,26 +85,6 @@ public class TransformadorADtoSB {
         return ret;
     }
     
-    public DtoRealizable transformarRealizable(Realizable r){
-        DtoRealizable ret = new DtoRealizable();
-        ret.setId(r.getId());
-        ret.setCompletado(r.isCompletado());
-        ret.setNombre(r.getNombre());
-        ret.setPrioridad(r.getPrioridad());
-        List<DtoEtiqueta> listaEtiquetas = new ArrayList<DtoEtiqueta>();
-        List<DtoUsuario> listaUsuarios = new ArrayList<DtoUsuario>();
-        for(Etiqueta e: r.getListaEtiquetas()){
-            DtoEtiqueta dto = transformarEtiqueta(e);
-            listaEtiquetas.add(dto);
-        }
-        for(Usuario u: r.getListaResponsables()){
-            DtoUsuario dto = transformarUsuarioLista(u);
-            listaUsuarios.add(dto);
-        }
-        ret.setListaEtiquetas(listaEtiquetas);
-        ret.setListaResponsables(listaUsuarios);
-        return ret;
-    }
     
     public DtoTarea transformarTarea(Tarea t){
         DtoTarea ret = new DtoTarea();
@@ -134,9 +92,9 @@ public class TransformadorADtoSB {
         ret.setCompletado(t.isCompletado());
         ret.setFechaCreacion(t.getFechaCreacion());
         ret.setFechaLimite(t.getFechaLimite());
-        List<DtoRealizable> listaRealizables = new ArrayList<DtoRealizable>();
-        for(Realizable r: t.getSubtareas()){
-            DtoRealizable dto = transformarRealizable(r);
+        List<DtoTarea> listaRealizables = new ArrayList<DtoTarea>();
+        for(Tarea r: t.getSubtareas()){
+            DtoTarea dto = transformarTareaLista(r);
             listaRealizables.add(dto);
         }
         ret.setSubtareas(listaRealizables);
@@ -152,6 +110,25 @@ public class TransformadorADtoSB {
             DtoUsuario dto = transformarUsuarioLista(u);
             listaUsuarios.add(dto);
         }
+        ret.setListaEtiquetas(listaEtiquetas);
+        ret.setListaResponsables(listaUsuarios);
+        return ret;
+    }
+    
+    public DtoTarea transformarTareaLista(Tarea t){
+        DtoTarea ret = new DtoTarea();
+        ret.setId(t.getId());
+        ret.setCompletado(t.isCompletado());
+        ret.setFechaCreacion(t.getFechaCreacion());
+        ret.setFechaLimite(t.getFechaLimite());
+        List<DtoTarea> listaRealizables = new ArrayList<DtoTarea>();
+        
+        ret.setSubtareas(listaRealizables);
+        ret.setNombre(t.getNombre());
+        ret.setPrioridad(t.getPrioridad());
+        List<DtoEtiqueta> listaEtiquetas = new ArrayList<DtoEtiqueta>();
+        List<DtoUsuario> listaUsuarios = new ArrayList<DtoUsuario>();
+        
         ret.setListaEtiquetas(listaEtiquetas);
         ret.setListaResponsables(listaUsuarios);
         return ret;

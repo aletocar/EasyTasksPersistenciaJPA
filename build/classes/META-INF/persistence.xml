@@ -7,7 +7,6 @@
     <class>com.easytasks.persistencia.entidades.Contexto</class>
     <class>com.easytasks.persistencia.entidades.Etiqueta</class>
     <class>com.easytasks.persistencia.entidades.Proyecto</class>
-    <class>com.easytasks.persistencia.entidades.Realizable</class>
     <class>com.easytasks.persistencia.entidades.Tarea</class>
     <class>com.easytasks.persistencia.entidades.Usuario</class>
     <class>com.easytasks.persistencia.entidades.Token</class>

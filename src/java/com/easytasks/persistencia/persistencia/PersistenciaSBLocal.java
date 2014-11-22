@@ -3,10 +3,8 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package com.easytasks.persistencia.persistencia;
 
-import com.easytasks.persistencia.entidades.Actividad;
 import com.easytasks.persistencia.entidades.Contexto;
 import com.easytasks.persistencia.entidades.Etiqueta;
 import com.easytasks.persistencia.entidades.Proyecto;
@@ -26,8 +24,6 @@ import javax.persistence.NoResultException;
 @Local
 public interface PersistenciaSBLocal {
 
-    void agregarActividad(Actividad a);
-
     void agregarContexto(Contexto c);
 
     void agregarEtiqueta(Etiqueta e);
@@ -37,8 +33,6 @@ public interface PersistenciaSBLocal {
     void agregarTarea(Tarea t);
 
     void agregarUsuario(Usuario u) throws EntityExistsException;
-
-    void borrarActividad(Actividad a);
 
     void borrarContexto(Contexto c);
 
@@ -50,21 +44,19 @@ public interface PersistenciaSBLocal {
 
     void borrarUsuario(Usuario u) throws EntityNotFoundException;
 
-    Actividad buscarActividad(Long id);
-
     Contexto buscarContexto(Long id);
 
     Etiqueta buscarEtiqueta(Long id);
 
     Proyecto buscarProyecto(Long id);
 
+    Proyecto buscarProyecto(String nombre);
+
     Tarea buscarTarea(Long id);
 
     Usuario buscarUsuario(Long id) throws EJBException;
 
     Usuario buscarUsuario(String username);
-
-    void modificarActividad(Actividad a);
 
     void modificarContexto(Contexto c);
 
@@ -75,10 +67,10 @@ public interface PersistenciaSBLocal {
     void modificarTarea(Tarea t);
 
     void modificarUsuario(Usuario u);
-    
+
     void agregarToken(Token t);
-    
-    void borrarToken(Token t);    
-    
+
+    void borrarToken(Token t);
+
     Token buscarToken(String t) throws EJBException;
 }

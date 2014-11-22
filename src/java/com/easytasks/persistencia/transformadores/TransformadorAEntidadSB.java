@@ -51,28 +51,6 @@ public class TransformadorAEntidadSB {
         return ret;
     }
     
-    public Actividad transformarActividad(DtoActividad a){
-        Actividad ret = new Actividad();
-        ret.setAutomatica(a.isAutomatica());
-        ret.setId(a.getId());
-        ret.setNombre(a.getNombre());
-        ret.setCompletado(a.isCompletado());
-        ret.setNombre(a.getNombre());
-        ret.setPrioridad(a.getPrioridad());
-        List<Etiqueta> listaEtiquetas = new ArrayList<Etiqueta>();
-        List<Usuario> listaUsuarios = new ArrayList<Usuario>();
-        for(DtoEtiqueta e: a.getListaEtiquetas()){
-            Etiqueta eti = transformarEtiqueta(e);
-            listaEtiquetas.add(eti);
-        }
-        for(DtoUsuario u: a.getListaResponsables()){
-            Usuario us = transformarUsuarioLista(u);
-            listaUsuarios.add(us);
-        }
-        ret.setListaEtiquetas(listaEtiquetas);
-        ret.setListaResponsables(listaUsuarios);
-        return ret;
-    }
     
     public Etiqueta transformarEtiqueta(DtoEtiqueta e){
         Etiqueta ret = new Etiqueta();
@@ -106,26 +84,6 @@ public class TransformadorAEntidadSB {
         return ret;
     }
     
-    public Realizable transformarRealizable(DtoRealizable r){
-        Realizable ret = new Realizable();
-        ret.setId(r.getId());
-        ret.setCompletado(r.isCompletado());
-        ret.setNombre(r.getNombre());
-        ret.setPrioridad(r.getPrioridad());
-        List<Etiqueta> listaEtiquetas = new ArrayList<Etiqueta>();
-        List<Usuario> listaUsuarios = new ArrayList<Usuario>();
-        for(DtoEtiqueta e: r.getListaEtiquetas()){
-            Etiqueta eti = transformarEtiqueta(e);
-            listaEtiquetas.add(eti);
-        }
-        for(DtoUsuario u: r.getListaResponsables()){
-            Usuario us = transformarUsuarioLista(u);
-            listaUsuarios.add(us);
-        }
-        ret.setListaEtiquetas(listaEtiquetas);
-        ret.setListaResponsables(listaUsuarios);
-        return ret;
-    }
     
     public Tarea transformarTarea(DtoTarea t){
         Tarea ret = new Tarea();
@@ -133,9 +91,9 @@ public class TransformadorAEntidadSB {
         ret.setCompletado(t.isCompletado());
         ret.setFechaCreacion(t.getFechaCreacion());
         ret.setFechaLimite(t.getFechaLimite());
-        List<Realizable> listaRealizables = new ArrayList<Realizable>();
-        for(DtoRealizable r: t.getSubtareas()){
-            Realizable real = transformarRealizable(r);
+        List<Tarea> listaRealizables = new ArrayList<Tarea>();
+        for(DtoTarea r: t.getSubtareas()){
+            Tarea real = transformarTareaLista(r);
             listaRealizables.add(real);
         }
         ret.setSubtareas(listaRealizables);
@@ -151,6 +109,23 @@ public class TransformadorAEntidadSB {
             Usuario us = transformarUsuarioLista(u);
             listaUsuarios.add(us);
         }
+        ret.setListaEtiquetas(listaEtiquetas);
+        ret.setListaResponsables(listaUsuarios);
+        return ret;
+    }
+    
+    public Tarea transformarTareaLista(DtoTarea t){
+        Tarea ret = new Tarea();
+        ret.setId(t.getId());
+        ret.setCompletado(t.isCompletado());
+        ret.setFechaCreacion(t.getFechaCreacion());
+        ret.setFechaLimite(t.getFechaLimite());
+        List<Tarea> listaRealizables = new ArrayList<Tarea>();
+        ret.setSubtareas(listaRealizables);
+        ret.setNombre(t.getNombre());
+        ret.setPrioridad(t.getPrioridad());
+        List<Etiqueta> listaEtiquetas = new ArrayList<Etiqueta>();
+        List<Usuario> listaUsuarios = new ArrayList<Usuario>();
         ret.setListaEtiquetas(listaEtiquetas);
         ret.setListaResponsables(listaUsuarios);
         return ret;

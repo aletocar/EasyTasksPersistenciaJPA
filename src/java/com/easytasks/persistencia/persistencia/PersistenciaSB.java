@@ -71,38 +71,31 @@ public class PersistenciaSB implements PersistenciaSBLocal {
         }
     }
 
-    private void borrarTokens(Usuario u){
-        try{
+    private void borrarTokens(Usuario u) {
+        try {
             List<Token> tokens = em.createNamedQuery("buscarTokensDeUsuario", Token.class).setParameter("idUsuario", u).getResultList();
-            for (int i = tokens.size()-1; i >= 0; i--) {
+            for (int i = tokens.size() - 1; i >= 0; i--) {
                 borrarToken(tokens.get(i));
             }
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }
-    
+
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void borrarUsuario(Usuario u) throws EntityNotFoundException {
         try {
             if (u.getId() != null) {
-               // Usuario borrar = em.merge(u);
-                
                 u = em.merge(u);
                 borrarTokens(u);
-                /*for (int i = u.getTokens().size() -1; i >= 0; i--) {
-                    em.remove(u.getTokens().get(i));
-                }*/
                 em.remove(u);
-                //em.clear();
             } else {
                 throw new EntityNotFoundException();
             }
         } catch (EntityNotFoundException e) {//Catcheo si se rompe la base de datos. o errores mas especificos
             throw e;
-        } catch (Exception p){
+        } catch (Exception p) {
             System.out.println(p.getMessage());
         }
     }
@@ -123,6 +116,7 @@ public class PersistenciaSB implements PersistenciaSBLocal {
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public Usuario buscarUsuario(String username) throws EJBException {
         try {
+
             return (Usuario) em.createNamedQuery("buscarUsuario").setParameter("nombreU", username).getSingleResult();
         } catch (NoResultException e) {
             throw new EJBException("No se encontró el usuario " + username, e);
@@ -133,6 +127,7 @@ public class PersistenciaSB implements PersistenciaSBLocal {
     // </editor-fold>
     // <editor-fold defaultstate="collapsed" desc=" Proyecto ">
     @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void agregarProyecto(Proyecto p) {
         try {
             em.persist(p);
@@ -142,6 +137,7 @@ public class PersistenciaSB implements PersistenciaSBLocal {
     }
 
     @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void modificarProyecto(Proyecto p) {
         try {
             if (p.getId() != null) {
@@ -155,20 +151,25 @@ public class PersistenciaSB implements PersistenciaSBLocal {
     }
 
     @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void borrarProyecto(Proyecto p) {
         try {
             if (p.getId() != null) {
+                p = em.merge(p);
+                //borrarTokens(u);
                 em.remove(p);
             } else {
-                //TODO: tirar el mensaje de que no existe en la db
+                throw new EntityNotFoundException();
             }
-        } catch (Exception e) {
-            System.out.println("No se pudo eliminar el proyecto");
-            //TODO: Mejorar esto
+        } catch (EntityNotFoundException e) {//Catcheo si se rompe la base de datos. o errores mas especificos
+            throw e;
+        } catch (Exception ee) {
+            System.out.println(ee.getMessage());
         }
     }
 
     @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public Proyecto buscarProyecto(Long id) {
         try {
             return em.find(Proyecto.class, id);
@@ -179,9 +180,20 @@ public class PersistenciaSB implements PersistenciaSBLocal {
         }
     }
 
+    @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public Proyecto buscarProyecto(String nombre) throws EJBException{
+        try {
+            return (Proyecto) em.createNamedQuery("buscarProyecto").setParameter("nombreP", nombre).getSingleResult();
+        } catch (NoResultException e) {
+            throw new EJBException();
+        }
+    }
+
     // </editor-fold>
     //<editor-fold defaultstate="collapsed" desc=" Tarea ">
     @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void agregarTarea(Tarea t) {
         try {
             em.persist(t);
@@ -191,6 +203,7 @@ public class PersistenciaSB implements PersistenciaSBLocal {
     }
 
     @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void modificarTarea(Tarea t) {
         try {
             if (t.getId() != null) {
@@ -204,6 +217,7 @@ public class PersistenciaSB implements PersistenciaSBLocal {
     }
 
     @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void borrarTarea(Tarea t) {
         try {
             if (t.getId() != null) {
@@ -218,58 +232,10 @@ public class PersistenciaSB implements PersistenciaSBLocal {
     }
 
     @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public Tarea buscarTarea(Long id) {
         try {
             return em.find(Tarea.class, id);
-        } catch (Exception e) {
-            //TODO: Mejorar esto
-            return null;
-
-        }
-    }
-
-    // </editor-fold>
-    //<editor-fold defaultstate="collapsed" desc=" Actividad ">
-    @Override
-    public void agregarActividad(Actividad a) {
-        try {
-            em.persist(a);
-        } catch (Exception e) {
-            System.out.println("Excepcion al agregar la actividad");
-        }
-    }
-
-    @Override
-    public void modificarActividad(Actividad a) {
-        try {
-            if (a.getId() != null) {
-                em.merge(a);
-            } else {
-                em.persist(a);
-            }
-        } catch (Exception e) {
-
-        }
-    }
-
-    @Override
-    public void borrarActividad(Actividad a) {
-        try {
-            if (a.getId() != null) {
-                em.remove(a);
-            } else {
-                //TODO: tirar el mensaje de que no existe en la db
-            }
-        } catch (Exception e) {
-            System.out.println("No se pudo eliminar la actividad");
-            //TODO: Mejorar esto
-        }
-    }
-
-    @Override
-    public Actividad buscarActividad(Long id) {
-        try {
-            return em.find(Actividad.class, id);
         } catch (Exception e) {
             //TODO: Mejorar esto
             return null;
@@ -379,16 +345,16 @@ public class PersistenciaSB implements PersistenciaSBLocal {
     //<editor-fold defaultstate="collapsed" desc=" Token ">
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public void agregarToken(Token t){
-        try{
+    public void agregarToken(Token t) {
+        try {
             em.persist(t);
-        }catch(PersistenceException p){
+        } catch (PersistenceException p) {
             throw new EntityExistsException();
-        }catch(Exception e){
+        } catch (Exception e) {
             throw new EntityExistsException();
         }
     }
-    
+
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void borrarToken(Token t) throws EntityNotFoundException {
@@ -402,7 +368,7 @@ public class PersistenciaSB implements PersistenciaSBLocal {
             throw e;
         }
     }
-    
+
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public Token buscarToken(String t) throws EJBException {
@@ -413,8 +379,6 @@ public class PersistenciaSB implements PersistenciaSBLocal {
         }
 
     }
-    
-    //</editor-fold>
 
-   
+    //</editor-fold>
 }
