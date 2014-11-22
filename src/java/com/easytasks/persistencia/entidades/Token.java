@@ -14,6 +14,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.Table;
 
 /**
  *
@@ -24,6 +25,7 @@ import javax.persistence.NamedQuery;
     query="select t from Token t where t.token = :token"
 )})
 @Entity
+@Table(name ="Token")
 public class Token implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
