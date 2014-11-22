@@ -24,7 +24,7 @@ import javax.validation.constraints.NotNull;
 
 @NamedQueries({
     @NamedQuery(name = "buscarProyecto",
-            query = "select p from Proyecto p where p.nombre = :nombreP"
+            query = "select p from Proyecto p where p.nombre = :nombreP and p.responsable = :responsable"
     )})
 @Entity
 @Table(name="Proyectos", uniqueConstraints = {

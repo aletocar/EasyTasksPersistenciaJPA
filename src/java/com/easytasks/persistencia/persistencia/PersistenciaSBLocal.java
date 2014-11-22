@@ -50,7 +50,7 @@ public interface PersistenciaSBLocal {
 
     Proyecto buscarProyecto(Long id);
 
-    Proyecto buscarProyecto(String nombre);
+    Proyecto buscarProyecto(String nombre, Usuario u);
 
     Tarea buscarTarea(Long id);
 

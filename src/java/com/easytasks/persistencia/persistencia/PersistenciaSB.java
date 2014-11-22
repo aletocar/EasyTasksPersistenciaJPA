@@ -182,9 +182,9 @@ public class PersistenciaSB implements PersistenciaSBLocal {
 
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public Proyecto buscarProyecto(String nombre) throws EJBException{
+    public Proyecto buscarProyecto(String nombre, Usuario responsable) throws EJBException{
         try {
-            return (Proyecto) em.createNamedQuery("buscarProyecto").setParameter("nombreP", nombre).getSingleResult();
+            return (Proyecto) em.createNamedQuery("buscarProyecto").setParameter("nombreP", nombre).setParameter("responsable", responsable).getSingleResult();
         } catch (NoResultException e) {
             throw new EJBException();
         }
