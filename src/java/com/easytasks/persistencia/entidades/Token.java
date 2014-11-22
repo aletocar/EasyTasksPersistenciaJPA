@@ -12,8 +12,10 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 /**
@@ -23,17 +25,24 @@ import javax.persistence.Table;
 @NamedQueries({
     @NamedQuery(name="buscarToken",
     query="select t from Token t where t.token = :token"
-)})
+    ),
+    @NamedQuery(name="buscarTokensDeUsuario",
+    query="select t from Token t where t.usuario = :idUsuario"
+    )
+})
 @Entity
 @Table(name ="Token")
 public class Token implements Serializable {
-    private static final long serialVersionUID = 1L;
+    //private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @Column(unique = true)
     private String token;
-
+    
+    @ManyToOne()
+    //@JoinColumn(name = "usuario_id")    
+    private Usuario usuario;
     public Long getId() {
         return id;
     }
@@ -48,6 +57,14 @@ public class Token implements Serializable {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
     }
 
     @Override

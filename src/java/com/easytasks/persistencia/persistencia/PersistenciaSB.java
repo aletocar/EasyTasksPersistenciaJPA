@@ -7,6 +7,7 @@ package com.easytasks.persistencia.persistencia;
 
 import com.easytasks.persistencia.entidades.*;
 import java.security.DigestException;
+import java.util.List;
 import javax.ejb.EJBException;
 import javax.ejb.Stateless;
 import javax.ejb.LocalBean;
@@ -70,17 +71,39 @@ public class PersistenciaSB implements PersistenciaSBLocal {
         }
     }
 
+    private void borrarTokens(Usuario u){
+        try{
+            List<Token> tokens = em.createNamedQuery("buscarTokensDeUsuario", Token.class).setParameter("idUsuario", u).getResultList();
+            for (int i = tokens.size()-1; i >= 0; i--) {
+                borrarToken(tokens.get(i));
+            }
+        }
+        catch(Exception e){
+            System.out.println(e.getMessage());
+        }
+    }
+    
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void borrarUsuario(Usuario u) throws EntityNotFoundException {
         try {
             if (u.getId() != null) {
+               // Usuario borrar = em.merge(u);
+                
+                u = em.merge(u);
+                borrarTokens(u);
+                /*for (int i = u.getTokens().size() -1; i >= 0; i--) {
+                    em.remove(u.getTokens().get(i));
+                }*/
                 em.remove(u);
+                //em.clear();
             } else {
                 throw new EntityNotFoundException();
             }
         } catch (EntityNotFoundException e) {//Catcheo si se rompe la base de datos. o errores mas especificos
             throw e;
+        } catch (Exception p){
+            System.out.println(p.getMessage());
         }
     }
 

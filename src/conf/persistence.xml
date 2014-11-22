@@ -10,6 +10,7 @@
     <class>com.easytasks.persistencia.entidades.Realizable</class>
     <class>com.easytasks.persistencia.entidades.Tarea</class>
     <class>com.easytasks.persistencia.entidades.Usuario</class>
+    <class>com.easytasks.persistencia.entidades.Token</class>
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
     <properties>
       <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
