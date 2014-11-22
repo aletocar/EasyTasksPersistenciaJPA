@@ -7,6 +7,7 @@ package com.easytasks.persistencia.persistencia;
 
 import com.easytasks.persistencia.entidades.*;
 import java.security.DigestException;
+import javax.ejb.EJBException;
 import javax.ejb.Stateless;
 import javax.ejb.LocalBean;
 import javax.ejb.TransactionAttribute;
@@ -28,37 +29,36 @@ import javax.validation.ConstraintViolationException;
 @Stateless
 public class PersistenciaSB implements PersistenciaSBLocal {
 
-    
     @PersistenceContext(unitName = "EasyTasksPersistenciaJPAPU")
     private EntityManager em;
 
-    public PersistenciaSB(){ 
+    public PersistenciaSB() {
         /*try{
-            EntityManagerFactory eFactory = Persistence.createEntityManagerFactory("EasyTasksPersistenciaJPAPU");
-            em = eFactory.createEntityManager();
-        }catch(NullPointerException n){
-            System.out.println("Excepcion nula al crear la Persistencia");
-        }catch(Exception e){
-            System.out.println("Excepcion no controlada al crear la persistencia");
-        }*/
+         EntityManagerFactory eFactory = Persistence.createEntityManagerFactory("EasyTasksPersistenciaJPAPU");
+         em = eFactory.createEntityManager();
+         }catch(NullPointerException n){
+         System.out.println("Excepcion nula al crear la Persistencia");
+         }catch(Exception e){
+         System.out.println("Excepcion no controlada al crear la persistencia");
+         }*/
     }
-    
+
     // <editor-fold defaultstate="collapsed" desc=" Usuario ">
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public void agregarUsuario(Usuario u) throws EntityExistsException{
+    public void agregarUsuario(Usuario u) throws EntityExistsException {
         try {
             em.persist(u);
         } catch (PersistenceException e) {
             throw new EntityExistsException();
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new EntityExistsException();
         }
     }
 
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public void modificarUsuario(Usuario u){
+    public void modificarUsuario(Usuario u) {
         try {
             if (u.getId() != null) {
                 em.merge(u);
@@ -72,14 +72,14 @@ public class PersistenciaSB implements PersistenciaSBLocal {
 
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public void borrarUsuario(Usuario u) throws EntityNotFoundException{
+    public void borrarUsuario(Usuario u) throws EntityNotFoundException {
         try {
             if (u.getId() != null) {
                 em.remove(u);
             } else {
                 throw new EntityNotFoundException();
             }
-        }catch(EntityNotFoundException e){//Catcheo si se rompe la base de datos. o errores mas especificos
+        } catch (EntityNotFoundException e) {//Catcheo si se rompe la base de datos. o errores mas especificos
             throw e;
         }
     }
@@ -95,19 +95,19 @@ public class PersistenciaSB implements PersistenciaSBLocal {
 
         }
     }
-    
+
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public Usuario buscarUsuario(String username){
-        try{
-           return (Usuario)em.createNamedQuery("buscarUsuario").setParameter("nombreU", username).getSingleResult();
-        }catch(NoResultException e){
-            throw e;
+    public Usuario buscarUsuario(String username) throws EJBException {
+        try {
+            return (Usuario) em.createNamedQuery("buscarUsuario").setParameter("nombreU", username).getSingleResult();
+        } catch (NoResultException e) {
+            throw new EJBException("No se encontró el usuario " + username, e);
         }
+
     }
 
     // </editor-fold>
-    
     // <editor-fold defaultstate="collapsed" desc=" Proyecto ">
     @Override
     public void agregarProyecto(Proyecto p) {
@@ -157,7 +157,6 @@ public class PersistenciaSB implements PersistenciaSBLocal {
     }
 
     // </editor-fold>
-    
     //<editor-fold defaultstate="collapsed" desc=" Tarea ">
     @Override
     public void agregarTarea(Tarea t) {
@@ -207,7 +206,6 @@ public class PersistenciaSB implements PersistenciaSBLocal {
     }
 
     // </editor-fold>
-    
     //<editor-fold defaultstate="collapsed" desc=" Actividad ">
     @Override
     public void agregarActividad(Actividad a) {
@@ -244,20 +242,19 @@ public class PersistenciaSB implements PersistenciaSBLocal {
             //TODO: Mejorar esto
         }
     }
-    
+
     @Override
-    public Actividad buscarActividad(Long id){
-        try{
+    public Actividad buscarActividad(Long id) {
+        try {
             return em.find(Actividad.class, id);
-        }catch(Exception e){
+        } catch (Exception e) {
             //TODO: Mejorar esto
             return null;
-            
+
         }
     }
 
     // </editor-fold>
-    
     //<editor-fold defaultstate="collapsed" desc=" Contexto ">
     @Override
     public void agregarContexto(Contexto c) {
@@ -294,20 +291,19 @@ public class PersistenciaSB implements PersistenciaSBLocal {
             //TODO: Mejorar esto
         }
     }
-    
+
     @Override
-    public Contexto buscarContexto(Long id){
-        try{
+    public Contexto buscarContexto(Long id) {
+        try {
             return em.find(Contexto.class, id);
-        }catch(Exception e){
+        } catch (Exception e) {
             //TODO: Mejorar esto
             return null;
-            
+
         }
     }
 
     // </editor-fold>
-    
     //<editor-fold defaultstate="collapsed" desc=" Etiqueta ">
     @Override
     public void agregarEtiqueta(Etiqueta e) {
@@ -344,15 +340,15 @@ public class PersistenciaSB implements PersistenciaSBLocal {
             //TODO: Mejorar esto
         }
     }
-    
+
     @Override
-    public Etiqueta buscarEtiqueta(Long id){
-        try{
+    public Etiqueta buscarEtiqueta(Long id) {
+        try {
             return em.find(Etiqueta.class, id);
-        }catch(Exception ex){
+        } catch (Exception ex) {
             //TODO: Mejorar esto
             return null;
-            
+
         }
     }
 

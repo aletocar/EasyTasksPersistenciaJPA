@@ -12,9 +12,11 @@ import com.easytasks.persistencia.entidades.Etiqueta;
 import com.easytasks.persistencia.entidades.Proyecto;
 import com.easytasks.persistencia.entidades.Tarea;
 import com.easytasks.persistencia.entidades.Usuario;
+import javax.ejb.EJBException;
 import javax.ejb.Local;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
+import javax.persistence.NoResultException;
 
 /**
  *
@@ -57,7 +59,7 @@ public interface PersistenciaSBLocal {
 
     Tarea buscarTarea(Long id);
 
-    Usuario buscarUsuario(Long id);
+    Usuario buscarUsuario(Long id) throws EJBException;
 
     Usuario buscarUsuario(String username);
 
