@@ -3,6 +3,10 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+            <file>file:/Users/alejandrotocar/NetBeansProjects/EasyTasks/EasyTasksPersistenciaJPA/src/java/com/easytasks/persistencia/entidades/Token.java</file>
+            <file>file:/Users/alejandrotocar/NetBeansProjects/EasyTasks/EasyTasksPersistenciaJPA/src/conf/persistence.xml</file>
+            <file>file:/Users/alejandrotocar/NetBeansProjects/EasyTasks/EasyTasksPersistenciaJPA/src/java/com/easytasks/persistencia/persistencia/PersistenciaSBLocal.java</file>
+            <file>file:/Users/alejandrotocar/NetBeansProjects/EasyTasks/EasyTasksPersistenciaJPA/src/java/com/easytasks/persistencia/entidades/Usuario.java</file>
             <file>file:/Users/alejandrotocar/NetBeansProjects/EasyTasks/EasyTasksPersistenciaJPA/src/java/com/easytasks/persistencia/persistencia/PersistenciaSB.java</file>
         </group>
     </open-files>

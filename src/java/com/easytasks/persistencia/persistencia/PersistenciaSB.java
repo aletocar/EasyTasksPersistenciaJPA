@@ -353,4 +353,45 @@ public class PersistenciaSB implements PersistenciaSBLocal {
     }
 
     // </editor-fold>
+    //<editor-fold defaultstate="collapsed" desc=" Token ">
+    @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public void agregarToken(Token t){
+        try{
+            em.persist(t);
+        }catch(PersistenceException p){
+            throw new EntityExistsException();
+        }catch(Exception e){
+            throw new EntityExistsException();
+        }
+    }
+    
+    @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public void borrarToken(Token t) throws EntityNotFoundException {
+        try {
+            if (t.getId() != null) {
+                em.remove(t);
+            } else {
+                throw new EntityNotFoundException();
+            }
+        } catch (EntityNotFoundException e) {//Catcheo si se rompe la base de datos. o errores mas especificos
+            throw e;
+        }
+    }
+    
+    @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public Token buscarToken(String t) throws EJBException {
+        try {
+            return (Token) em.createNamedQuery("buscarToken").setParameter("token", t).getSingleResult();
+        } catch (NoResultException e) {
+            throw new EJBException("No se encontró el token " + t, e);
+        }
+
+    }
+    
+    //</editor-fold>
+
+   
 }

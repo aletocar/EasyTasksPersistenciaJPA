@@ -11,6 +11,7 @@ import com.easytasks.persistencia.entidades.Contexto;
 import com.easytasks.persistencia.entidades.Etiqueta;
 import com.easytasks.persistencia.entidades.Proyecto;
 import com.easytasks.persistencia.entidades.Tarea;
+import com.easytasks.persistencia.entidades.Token;
 import com.easytasks.persistencia.entidades.Usuario;
 import javax.ejb.EJBException;
 import javax.ejb.Local;
@@ -75,4 +76,9 @@ public interface PersistenciaSBLocal {
 
     void modificarUsuario(Usuario u);
     
+    void agregarToken(Token t);
+    
+    void borrarToken(Token t);    
+    
+    Token buscarToken(String t) throws EJBException;
 }
