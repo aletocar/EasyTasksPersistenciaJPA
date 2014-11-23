@@ -6,22 +6,17 @@
 package com.easytasks.persistencia.persistencia;
 
 import com.easytasks.persistencia.entidades.*;
-import java.security.DigestException;
 import java.util.List;
 import javax.ejb.EJBException;
 import javax.ejb.Stateless;
-import javax.ejb.LocalBean;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.NoResultException;
-import javax.persistence.Persistence;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
-import javax.validation.ConstraintViolationException;
 
 /**
  *
@@ -66,8 +61,10 @@ public class PersistenciaSB implements PersistenciaSBLocal {
             } else {
                 em.persist(u);
             }
+        } catch (PersistenceException e) {
+            throw new EntityNotFoundException("No se encontró el usuario a modificar");
         } catch (Exception e) {
-            throw new EntityNotFoundException();//TODO: Revisar
+            throw new EntityNotFoundException("Error Inesperado");
         }
     }
 
@@ -78,7 +75,7 @@ public class PersistenciaSB implements PersistenciaSBLocal {
                 borrarToken(tokens.get(i));
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            throw new EntityNotFoundException("Error Inesperado! Contacte a un administrador del sistema");
         }
     }
 
@@ -116,12 +113,10 @@ public class PersistenciaSB implements PersistenciaSBLocal {
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public Usuario buscarUsuario(String username) throws EJBException {
         try {
-
             return (Usuario) em.createNamedQuery("buscarUsuario").setParameter("nombreU", username).getSingleResult();
         } catch (NoResultException e) {
             throw new EJBException("No se encontró el usuario " + username, e);
         }
-
     }
 
     // </editor-fold>
@@ -130,9 +125,14 @@ public class PersistenciaSB implements PersistenciaSBLocal {
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void agregarProyecto(Proyecto p) {
         try {
+            if (p.getContexto().getId() == null) {
+                em.persist(p.getContexto());
+            }
             em.persist(p);
+        } catch (PersistenceException e) {
+            throw new EntityExistsException("Ya existe un proyecto " + p.getNombre() + " para este usuario");
         } catch (Exception e) {
-            System.out.println("Excepcion al agregar proyecto");
+            throw new EntityExistsException("Error Inesperado");
         }
     }
 
@@ -145,8 +145,10 @@ public class PersistenciaSB implements PersistenciaSBLocal {
             } else {
                 em.persist(p);
             }
+        } catch (PersistenceException e) {
+            throw new EntityNotFoundException("No se encontró el proyecto a modificar");
         } catch (Exception e) {
-
+            throw new EntityNotFoundException("Error Inesperado");
         }
     }
 
@@ -156,15 +158,14 @@ public class PersistenciaSB implements PersistenciaSBLocal {
         try {
             if (p.getId() != null) {
                 p = em.merge(p);
-                //borrarTokens(u);
                 em.remove(p);
             } else {
-                throw new EntityNotFoundException();
+                throw new EntityNotFoundException("No existe el proyecto a borrar");
             }
         } catch (EntityNotFoundException e) {//Catcheo si se rompe la base de datos. o errores mas especificos
             throw e;
         } catch (Exception ee) {
-            System.out.println(ee.getMessage());
+            throw new EJBException("Error Inesperado");
         }
     }
 
@@ -182,11 +183,21 @@ public class PersistenciaSB implements PersistenciaSBLocal {
 
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public Proyecto buscarProyecto(String nombre, Usuario responsable) throws EJBException{
+    public Proyecto buscarProyecto(String nombre, Usuario responsable) throws EJBException {
         try {
             return (Proyecto) em.createNamedQuery("buscarProyecto").setParameter("nombreP", nombre).setParameter("responsable", responsable).getSingleResult();
         } catch (NoResultException e) {
-            throw new EJBException();
+            throw new EJBException("No se encontró el proyecto indicado");
+        }
+    }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public List<Usuario> buscarUsuariosDeProyecto(String nombre, Usuario responsable) throws EJBException {
+        try {
+            return em.createNamedQuery("buscarUsuariosDeProyecto", Usuario.class).setParameter("nombreP", nombre).setParameter("responsable", responsable).getResultList();
+        } catch (NoResultException n) {
+            throw new EJBException("No se encontro el proyecto indicado");
         }
     }
 
@@ -196,9 +207,17 @@ public class PersistenciaSB implements PersistenciaSBLocal {
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void agregarTarea(Tarea t) {
         try {
+            for (Etiqueta etiqueta : t.getListaEtiquetas()) {
+                etiqueta = buscarEtiqueta(etiqueta.getNombre());
+                if(etiqueta==null){
+                    em.persist(etiqueta);
+                }
+            }
             em.persist(t);
+        } catch (PersistenceException e) {
+            throw new EntityExistsException("Ya existe una tarea " + t.getNombre() + " para este proyecto");
         } catch (Exception e) {
-            System.out.println("Excepcion al agregar la tarea");
+            throw new EntityExistsException("Error Inesperado");
         }
     }
 
@@ -211,8 +230,10 @@ public class PersistenciaSB implements PersistenciaSBLocal {
             } else {
                 em.persist(t);
             }
+        } catch (PersistenceException e) {
+            throw new EntityNotFoundException("No se encontró la tarea a modificar");
         } catch (Exception e) {
-
+            throw new EntityNotFoundException("Error Inesperado");
         }
     }
 
@@ -221,13 +242,15 @@ public class PersistenciaSB implements PersistenciaSBLocal {
     public void borrarTarea(Tarea t) {
         try {
             if (t.getId() != null) {
+                t = em.merge(t);
                 em.remove(t);
             } else {
-                //TODO: tirar el mensaje de que no existe en la db
+                throw new EntityNotFoundException("No existe la tarea a borrar");
             }
-        } catch (Exception e) {
-            System.out.println("No se pudo eliminar la tarea");
-            //TODO: Mejorar esto
+        } catch (EntityNotFoundException ex) {//Catcheo si se rompe la base de datos. o errores mas especificos
+            throw ex;
+        } catch (Exception ex) {
+            throw new EJBException("Error Inesperado");
         }
     }
 
@@ -239,56 +262,77 @@ public class PersistenciaSB implements PersistenciaSBLocal {
         } catch (Exception e) {
             //TODO: Mejorar esto
             return null;
+        }
+    }
 
+    @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public List<Tarea> buscarTareasDeProyecto(Proyecto p) throws EJBException {
+        try {
+            return em.createNamedQuery("buscarTareasDeProyecto", Tarea.class).setParameter("proyecto", p)
+                    .getResultList();
+        } catch (NoResultException n) {
+            throw new EJBException("No se encontro el proyecto indicado");
         }
     }
 
     // </editor-fold>
     //<editor-fold defaultstate="collapsed" desc=" Contexto ">
-    @Override
-    public void agregarContexto(Contexto c) {
-        try {
-            em.persist(c);
-        } catch (Exception e) {
-            System.out.println("Excepcion al agregar el contexto");
-        }
-    }
+    /*@Override
+     public void agregarContexto(Contexto c) {
+     try {
+     em.persist(c);
+     } catch (PersistenceException e) {
+     throw new EntityExistsException("Ya existe un contexto " + c.getNombre()+" para este usuario");
+     } catch (Exception e) {
+     throw new EntityExistsException("Error Inesperado");
+     }
+     }
 
-    @Override
-    public void modificarContexto(Contexto c) {
-        try {
-            if (c.getId() != null) {
-                em.merge(c);
-            } else {
-                em.persist(c);
-            }
-        } catch (Exception e) {
+     @Override
+     public void modificarContexto(Contexto c) {
+     try {
+     if (c.getId() != null) {
+     em.merge(c);
+     } else {
+     em.persist(c);
+     }
+     } catch (Exception e) {
 
-        }
-    }
+     }
+     }
 
-    @Override
-    public void borrarContexto(Contexto c) {
-        try {
-            if (c.getId() != null) {
-                em.remove(c);
-            } else {
-                //TODO: tirar el mensaje de que no existe en la db
-            }
-        } catch (Exception e) {
-            System.out.println("No se pudo eliminar el contexto");
-            //TODO: Mejorar esto
-        }
-    }
+     @Override
+     public void borrarContexto(Contexto c) {
+     try {
+     if (c.getId() != null) {
+     em.remove(c);
+     } else {
+     //TODO: tirar el mensaje de que no existe en la db
+     }
+     } catch (Exception e) {
+     System.out.println("No se pudo eliminar el contexto");
+     //TODO: Mejorar esto
+     }
+     }
 
+     @Override
+     public Contexto
+     buscarContexto(Long id) {
+     try {
+     return em.find(Contexto.class, id);
+     } catch (Exception e) {
+     //TODO: Mejorar esto
+     return null;
+
+     }
+     }*/
     @Override
-    public Contexto buscarContexto(Long id) {
+    public Contexto buscarContexto(String nombre) {
         try {
-            return em.find(Contexto.class, id);
-        } catch (Exception e) {
-            //TODO: Mejorar esto
+            return (Contexto) em.createNamedQuery("buscarContexto").setParameter("nombreC", nombre).getSingleResult();
+        } catch (NoResultException e) {
             return null;
-
         }
     }
 
@@ -298,8 +342,10 @@ public class PersistenciaSB implements PersistenciaSBLocal {
     public void agregarEtiqueta(Etiqueta e) {
         try {
             em.persist(e);
-        } catch (Exception ex) {
-            System.out.println("Excepcion al agregar la etiqueta");
+        } catch (PersistenceException ee) {
+            throw new EntityExistsException("Ya existe una etiqueta " + e.getNombre());
+        } catch (Exception ee) {
+            throw new EntityExistsException("Error Inesperado");
         }
     }
 
@@ -311,8 +357,10 @@ public class PersistenciaSB implements PersistenciaSBLocal {
             } else {
                 em.persist(e);
             }
+        } catch (PersistenceException ex) {
+            throw new EntityNotFoundException("No se encontró la etiqueta a modificar");
         } catch (Exception ex) {
-
+            throw new EntityNotFoundException("Error Inesperado");
         }
     }
 
@@ -320,24 +368,36 @@ public class PersistenciaSB implements PersistenciaSBLocal {
     public void borrarEtiqueta(Etiqueta e) {
         try {
             if (e.getId() != null) {
+                e = em.merge(e);
                 em.remove(e);
             } else {
-                //TODO: tirar el mensaje de que no existe en la db
+                throw new EntityNotFoundException("No existe la etiqueta a borrar");
             }
+        } catch (EntityNotFoundException ex) {//Catcheo si se rompe la base de datos. o errores mas especificos
+            throw ex;
         } catch (Exception ex) {
-            System.out.println("No se pudo eliminar el etiqueta");
-            //TODO: Mejorar esto
+            throw new EJBException("Error Inesperado");
         }
     }
 
     @Override
-    public Etiqueta buscarEtiqueta(Long id) {
+    public Etiqueta
+            buscarEtiqueta(Long id) {
         try {
             return em.find(Etiqueta.class, id);
         } catch (Exception ex) {
             //TODO: Mejorar esto
             return null;
 
+        }
+    }
+
+    @Override
+    public Etiqueta buscarEtiqueta(String nombre) {
+        try {
+            return (Etiqueta) em.createNamedQuery("buscarEtiqueta").setParameter("nombreE", nombre).getSingleResult();
+        } catch (NoResultException e) {
+            return null;
         }
     }
 

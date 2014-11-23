@@ -13,11 +13,22 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.UniqueConstraint;
 
+/**
+ *
+ * @author alejandrotocar
+ */
+@NamedQueries({
+    @NamedQuery(name = "buscarTareasDeProyecto",
+            query = "select t from Tarea t where t.proyecto = :proyecto"
+    )
+})
 @Entity
 @Table(name="Tareas", uniqueConstraints = {
     @UniqueConstraint(columnNames = {"nombre", "proyecto"})
@@ -38,6 +49,8 @@ public class Tarea implements Serializable {
     private int prioridad;
 
     private boolean completado;
+    @ManyToOne(optional = true)
+    private Usuario realizador;
 
     @OneToMany
     private List<Usuario> listaResponsables;
@@ -134,10 +147,18 @@ public class Tarea implements Serializable {
         this.proyecto = proyecto;
     }
 
+    public Usuario getRealizador() {
+        return realizador;
+    }
+
+    public void setRealizador(Usuario realizador) {
+        this.realizador = realizador;
+    }
+
     public Tarea() {
-        subtareas = new ArrayList<Tarea>();
-        listaEtiquetas = new ArrayList<Etiqueta>();
-        listaResponsables = new ArrayList<Usuario>();
+        subtareas = new ArrayList<>();
+        listaEtiquetas = new ArrayList<>();
+        listaResponsables = new ArrayList<>();
     }
 
     @Override

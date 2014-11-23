@@ -1,19 +1,26 @@
 package com.easytasks.persistencia.entidades;
 
 import java.io.Serializable;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.validation.constraints.NotNull;
 
+@NamedQueries({
+    @NamedQuery(name = "buscarEtiqueta",
+            query = "select e from Etiqueta e where e.nombre = :nombreE"
+    )})
 @Entity
 public class Etiqueta implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @NotNull
+    @Column(unique = true)
     private String nombre;
 
     public Long getId() {

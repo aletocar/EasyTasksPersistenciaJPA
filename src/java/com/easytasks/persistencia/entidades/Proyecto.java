@@ -25,9 +25,13 @@ import javax.validation.constraints.NotNull;
 @NamedQueries({
     @NamedQuery(name = "buscarProyecto",
             query = "select p from Proyecto p where p.nombre = :nombreP and p.responsable = :responsable"
-    )})
+    ),
+    @NamedQuery(name = "buscarUsuariosDeProyecto",
+            query = "select u from Proyecto p join p.usuarios u where p.nombre = :nombreP and p.responsable = :responsable"
+    )
+})
 @Entity
-@Table(name="Proyectos", uniqueConstraints = {
+@Table(name = "Proyectos", uniqueConstraints = {
     @UniqueConstraint(columnNames = {"nombre", "responsable"})
 })
 public class Proyecto implements Serializable {
@@ -49,7 +53,7 @@ public class Proyecto implements Serializable {
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date fechaFin;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @ManyToOne(optional = true, fetch = FetchType.EAGER)
     private Contexto contexto;
 
     @ManyToMany(fetch = FetchType.LAZY)

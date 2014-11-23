@@ -11,6 +11,7 @@ import com.easytasks.persistencia.entidades.Proyecto;
 import com.easytasks.persistencia.entidades.Tarea;
 import com.easytasks.persistencia.entidades.Token;
 import com.easytasks.persistencia.entidades.Usuario;
+import java.util.List;
 import javax.ejb.EJBException;
 import javax.ejb.Local;
 import javax.persistence.EntityExistsException;
@@ -24,8 +25,7 @@ import javax.persistence.NoResultException;
 @Local
 public interface PersistenciaSBLocal {
 
-    void agregarContexto(Contexto c);
-
+    //void agregarContexto(Contexto c);
     void agregarEtiqueta(Etiqueta e);
 
     void agregarProyecto(Proyecto p);
@@ -34,8 +34,7 @@ public interface PersistenciaSBLocal {
 
     void agregarUsuario(Usuario u) throws EntityExistsException;
 
-    void borrarContexto(Contexto c);
-
+    //void borrarContexto(Contexto c);
     void borrarEtiqueta(Etiqueta e);
 
     void borrarProyecto(Proyecto p);
@@ -44,9 +43,12 @@ public interface PersistenciaSBLocal {
 
     void borrarUsuario(Usuario u) throws EntityNotFoundException;
 
-    Contexto buscarContexto(Long id);
+    //Contexto buscarContexto(Long id);
+    Contexto buscarContexto(String nombre);
 
     Etiqueta buscarEtiqueta(Long id);
+
+    Etiqueta buscarEtiqueta(String nombre);
 
     Proyecto buscarProyecto(Long id);
 
@@ -58,13 +60,16 @@ public interface PersistenciaSBLocal {
 
     Usuario buscarUsuario(String username);
 
-    void modificarContexto(Contexto c);
+    List<Usuario> buscarUsuariosDeProyecto(String nombre, Usuario responsable) throws EJBException;
 
+    //void modificarContexto(Contexto c);
     void modificarEtiqueta(Etiqueta e);
 
     void modificarProyecto(Proyecto p);
 
     void modificarTarea(Tarea t);
+
+    List<Tarea> buscarTareasDeProyecto(Proyecto p) throws EJBException;
 
     void modificarUsuario(Usuario u);
 
