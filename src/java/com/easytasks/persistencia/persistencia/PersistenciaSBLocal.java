@@ -56,9 +56,17 @@ public interface PersistenciaSBLocal {
 
     Tarea buscarTarea(Long id);
 
+    Tarea buscarTarea(String nombre, Proyecto proyecto) throws EJBException;
+
+    List<Tarea> buscarSubtareasDeTarea(String nombre, Proyecto p) throws EJBException;
+
+    List<Usuario> buscarResponsablesDeTarea(String nombre, Proyecto p) throws EJBException;
+
     Usuario buscarUsuario(Long id) throws EJBException;
 
     Usuario buscarUsuario(String username);
+
+    List<Usuario> buscarContactos(Usuario u);
 
     List<Usuario> buscarUsuariosDeProyecto(String nombre, Usuario responsable) throws EJBException;
 
@@ -78,4 +86,5 @@ public interface PersistenciaSBLocal {
     void borrarToken(Token t);
 
     Token buscarToken(String t) throws EJBException;
+
 }

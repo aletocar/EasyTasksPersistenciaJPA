@@ -20,6 +20,9 @@ import javax.validation.constraints.NotNull;
 @NamedQueries({
     @NamedQuery(name="buscarUsuario",
     query="select u from Usuario u where u.nombreUsuario = :nombreU"
+),
+@NamedQuery(name="buscarContactos",
+    query="select u.contactos from Usuario u where u = :usuario"
 )})
 @Entity
 @Table(name="Usuarios")
