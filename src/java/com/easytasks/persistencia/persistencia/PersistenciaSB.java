@@ -119,14 +119,15 @@ public class PersistenciaSB implements PersistenciaSBLocal {
         }
     }
 
-     @Override
+    @Override
     public List<Usuario> buscarContactos(Usuario u) {
         try {
-            return  em.createNamedQuery("buscarContactos", Usuario.class).setParameter("usuario", u).getResultList();
+            return em.createNamedQuery("buscarContactos", Usuario.class).setParameter("usuario", u).getResultList();
         } catch (NoResultException e) {
             return null;
         }
     }
+
     // </editor-fold>
     // <editor-fold defaultstate="collapsed" desc=" Proyecto ">
     @Override
@@ -217,8 +218,10 @@ public class PersistenciaSB implements PersistenciaSBLocal {
         try {
             for (Etiqueta etiqueta : t.getListaEtiquetas()) {
                 Etiqueta etiqueta2 = buscarEtiqueta(etiqueta.getNombre());
-                if(etiqueta2==null){
+                if (etiqueta2 == null) {
                     em.persist(etiqueta);
+                } else {
+                    etiqueta.setId(etiqueta2.getId());
                 }
             }
             em.persist(t);
@@ -293,12 +296,12 @@ public class PersistenciaSB implements PersistenciaSBLocal {
             throw new EJBException("No se encontro el proyecto indicado");
         }
     }
-    
+
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public List<Tarea> buscarSubtareasDeTarea(String nombre, Proyecto p) throws EJBException {
         try {
-           return em.createNamedQuery("buscarSubTareasDeTarea", Tarea.class).setParameter("proyecto", p).setParameter("nombreT", nombre).getResultList(); 
+            return em.createNamedQuery("buscarSubTareasDeTarea", Tarea.class).setParameter("proyecto", p).setParameter("nombreT", nombre).getResultList();
         } catch (NoResultException n) {
             throw new EJBException("No se encontro la tarea indicada");
         }
@@ -314,6 +317,29 @@ public class PersistenciaSB implements PersistenciaSBLocal {
             throw new EJBException("No se encontro la tarea indicada");
         }
     }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public List<Tarea> buscarTareasCompletadasPorUsuario(Usuario u) throws EJBException {
+        try {
+            return em.createNamedQuery("buscarTareasRealizadasDeUsuario", Tarea.class).setParameter("usuario", u)
+                    .getResultList();
+        } catch (NoResultException n) {
+            throw new EJBException("No se encontro ninguna tarea indicada");
+        }
+    }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public List<Tarea> buscarTareasCompletadasResponsable(Usuario u) throws EJBException {
+        try {
+            return em.createNamedQuery("buscarTareasRealizadasResponsable", Tarea.class).setParameter("usuario", u)
+                    .getResultList();
+        } catch (NoResultException n) {
+            throw new EJBException("No se encontro ninguna tarea indicada");
+        }
+    }
+
     // </editor-fold>
     //<editor-fold defaultstate="collapsed" desc=" Contexto ">
     /*@Override

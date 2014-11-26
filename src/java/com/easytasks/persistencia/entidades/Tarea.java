@@ -36,6 +36,15 @@ import javax.persistence.UniqueConstraint;
     ),
     @NamedQuery(name = "buscarTarea",
             query = "select t from Tarea t where t.proyecto = :proyecto and t.nombre = :nombreT"
+    ),
+    @NamedQuery(name = "buscarTareasRealizadasDeUsuario",
+            query = "select t from Tarea t where t.realizador = :usuario"
+    ),
+    @NamedQuery(name = "buscarTareasRealizadasResponsable",
+            query = "select t from Tarea t where t.completado = true and t.proyecto in (select p from Proyecto p where p.responsable = :usuario)"
+    ),
+    @NamedQuery(name = "buscarTareasPendientes",
+            query = "select t from Tarea t where t.completado = false and t.listaResponsables = :usuario"
     )
 })
 @Entity

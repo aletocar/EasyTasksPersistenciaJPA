@@ -16,7 +16,6 @@ import javax.ejb.EJBException;
 import javax.ejb.Local;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
-import javax.persistence.NoResultException;
 
 /**
  *
@@ -59,6 +58,10 @@ public interface PersistenciaSBLocal {
     Tarea buscarTarea(String nombre, Proyecto proyecto) throws EJBException;
 
     List<Tarea> buscarSubtareasDeTarea(String nombre, Proyecto p) throws EJBException;
+
+    List<Tarea> buscarTareasCompletadasPorUsuario(Usuario u) throws EJBException;
+
+    List<Tarea> buscarTareasCompletadasResponsable(Usuario u) throws EJBException;
 
     List<Usuario> buscarResponsablesDeTarea(String nombre, Proyecto p) throws EJBException;
 
