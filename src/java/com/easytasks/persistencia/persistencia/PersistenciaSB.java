@@ -183,7 +183,7 @@ public class PersistenciaSB implements PersistenciaSBLocal {
     public Proyecto buscarProyecto(Long id) {
         try {
             return em.find(Proyecto.class, id);
-        } catch (Exception e) {
+        } catch (PersistenceException e) {
             //TODO: Mejorar esto
             return null;
 
