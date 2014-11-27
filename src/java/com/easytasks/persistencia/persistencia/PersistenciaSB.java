@@ -141,7 +141,7 @@ public class PersistenciaSB implements PersistenciaSBLocal {
 
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public void borrarProyecto(Proyecto p) throws EJBException{
+    public void borrarProyecto(Proyecto p) throws EJBException {
         try {
             if (p.getId() != null) {
                 p = em.merge(p);
@@ -242,7 +242,7 @@ public class PersistenciaSB implements PersistenciaSBLocal {
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public Tarea buscarTarea(Long id) {
-            return em.find(Tarea.class, id);//Si no encuentra nada devuelve null
+        return em.find(Tarea.class, id);//Si no encuentra nada devuelve null
     }
 
     @Override
@@ -305,7 +305,7 @@ public class PersistenciaSB implements PersistenciaSBLocal {
             return em.createNamedQuery("buscarTareasRealizadasResponsable", Tarea.class).setParameter("usuario", u)
                     .getResultList();
         } catch (NoResultException n) {
-            throw new EJBException("No se encontro ninguna tarea indicada",n);
+            throw new EJBException("No se encontro ninguna tarea indicada", n);
         }
     }
 
@@ -327,9 +327,9 @@ public class PersistenciaSB implements PersistenciaSBLocal {
         try {
             em.persist(e);
         } catch (PersistenceException ee) {
-            throw new EntityExistsException("Ya existe una etiqueta " + e.getNombre());
+            throw new EntityExistsException("Ya existe una etiqueta " + e.getNombre(), ee);
         } catch (Exception ee) {
-            throw new EntityExistsException("Error Inesperado");
+            throw new EntityExistsException("Error Inesperado", ee);
         }
     }
 
@@ -357,23 +357,14 @@ public class PersistenciaSB implements PersistenciaSBLocal {
             } else {
                 throw new EntityNotFoundException("No existe la etiqueta a borrar");
             }
-        } catch (EntityNotFoundException ex) {//Catcheo si se rompe la base de datos. o errores mas especificos
-            throw ex;
-        } catch (Exception ex) {
-            throw new EJBException("Error Inesperado");
+        } catch (EntityNotFoundException ex) {
+            throw new EJBException(ex.getMessage(), ex);
         }
     }
 
     @Override
-    public Etiqueta
-            buscarEtiqueta(Long id) {
-        try {
-            return em.find(Etiqueta.class, id);
-        } catch (Exception ex) {
-            //TODO: Mejorar esto
-            return null;
-
-        }
+    public Etiqueta buscarEtiqueta(Long id) {
+        return em.find(Etiqueta.class, id);
     }
 
     @Override
@@ -381,7 +372,7 @@ public class PersistenciaSB implements PersistenciaSBLocal {
         try {
             return (Etiqueta) em.createNamedQuery("buscarEtiqueta").setParameter("nombreE", nombre).getSingleResult();
         } catch (NoResultException e) {
-            return null;
+            return null;//No quiero hacer nada si no la encuentra, porque la va a guardar.
         }
     }
 
@@ -393,23 +384,19 @@ public class PersistenciaSB implements PersistenciaSBLocal {
         try {
             em.persist(t);
         } catch (PersistenceException p) {
-            throw new EntityExistsException();
+            throw new EntityExistsException("No se pudo ingresar el usuario", p);
         } catch (Exception e) {
-            throw new EntityExistsException();
+            throw new EntityExistsException("Error inesperado al ingresar el usuario", e);
         }
     }
 
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void borrarToken(Token t) throws EntityNotFoundException {
-        try {
-            if (t.getId() != null) {
-                em.remove(t);
-            } else {
-                throw new EntityNotFoundException();
-            }
-        } catch (EntityNotFoundException e) {//Catcheo si se rompe la base de datos. o errores mas especificos
-            throw e;
+        if (t.getId() != null) {
+            em.remove(t);
+        } else {
+            throw new EntityNotFoundException("No se puede cerrar sesión del usuario");
         }
     }
 

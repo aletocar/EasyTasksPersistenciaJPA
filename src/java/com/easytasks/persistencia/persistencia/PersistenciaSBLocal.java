@@ -33,7 +33,6 @@ public interface PersistenciaSBLocal {
 
     void agregarUsuario(Usuario u) throws EntityExistsException;
 
-    //void borrarContexto(Contexto c);
     void borrarEtiqueta(Etiqueta e);
 
     void borrarProyecto(Proyecto p);
@@ -42,7 +41,6 @@ public interface PersistenciaSBLocal {
 
     void borrarUsuario(Usuario u) throws EntityNotFoundException;
 
-    //Contexto buscarContexto(Long id);
     Contexto buscarContexto(String nombre);
 
     Etiqueta buscarEtiqueta(Long id);
@@ -73,7 +71,6 @@ public interface PersistenciaSBLocal {
 
     List<Usuario> buscarUsuariosDeProyecto(String nombre, Usuario responsable) throws EJBException;
 
-    //void modificarContexto(Contexto c);
     void modificarEtiqueta(Etiqueta e);
 
     void modificarProyecto(Proyecto p);
