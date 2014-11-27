@@ -39,17 +39,19 @@ public class Proyecto implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    
     @NotNull
     @Column(name = "nombre")
     private String nombre;
+    
     @NotNull
-    //TODO: Chequear qué cascade hay que poner
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "responsable")
     private Usuario responsable;
 
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date fechaInicio;
+   
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date fechaFin;
 

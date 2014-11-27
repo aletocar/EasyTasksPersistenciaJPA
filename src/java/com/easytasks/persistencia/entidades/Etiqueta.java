@@ -8,12 +8,14 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.Table;
 
 @NamedQueries({
     @NamedQuery(name = "buscarEtiqueta",
             query = "select e from Etiqueta e where e.nombre = :nombreE"
     )})
 @Entity
+@Table(name = "Etiquetas")
 public class Etiqueta implements Serializable {
 
     @Id

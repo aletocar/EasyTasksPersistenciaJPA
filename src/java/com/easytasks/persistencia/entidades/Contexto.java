@@ -8,6 +8,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
 @NamedQueries({
@@ -15,6 +16,7 @@ import javax.validation.constraints.NotNull;
             query = "select c from Contexto c where c.nombre = :nombreC"
     )})
 @Entity
+@Table(name = "Contextos")
 public class Contexto implements Serializable {
 
     @Id
