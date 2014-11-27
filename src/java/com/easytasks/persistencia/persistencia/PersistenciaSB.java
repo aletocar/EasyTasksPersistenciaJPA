@@ -29,14 +29,7 @@ public class PersistenciaSB implements PersistenciaSBLocal {
     private EntityManager em;
 
     public PersistenciaSB() {
-        /*try{
-         EntityManagerFactory eFactory = Persistence.createEntityManagerFactory("EasyTasksPersistenciaJPAPU");
-         em = eFactory.createEntityManager();
-         }catch(NullPointerException n){
-         System.out.println("Excepcion nula al crear la Persistencia");
-         }catch(Exception e){
-         System.out.println("Excepcion no controlada al crear la persistencia");
-         }*/
+
     }
 
     // <editor-fold defaultstate="collapsed" desc=" Usuario ">
@@ -46,9 +39,9 @@ public class PersistenciaSB implements PersistenciaSBLocal {
         try {
             em.persist(u);
         } catch (PersistenceException e) {
-            throw new EntityExistsException();
+            throw new EntityExistsException("Ya existe el usuario", e);
         } catch (Exception e) {
-            throw new EntityExistsException();
+            throw new EntityExistsException("Ocurrió un problema inesperado al agregar un usuario. Por favor intente nuevamente", e);
         }
     }
 
@@ -68,45 +61,30 @@ public class PersistenciaSB implements PersistenciaSBLocal {
         }
     }
 
-    private void borrarTokens(Usuario u) {
-        try {
-            List<Token> tokens = em.createNamedQuery("buscarTokensDeUsuario", Token.class).setParameter("idUsuario", u).getResultList();
-            for (int i = tokens.size() - 1; i >= 0; i--) {
-                borrarToken(tokens.get(i));
-            }
-        } catch (Exception e) {
-            throw new EntityNotFoundException("Error Inesperado! Contacte a un administrador del sistema");
+    private void borrarTokens(Usuario u) throws EntityNotFoundException {
+        List<Token> tokens = em.createNamedQuery("buscarTokensDeUsuario", Token.class).setParameter("idUsuario", u).getResultList();
+        for (int i = tokens.size() - 1; i >= 0; i--) {
+            borrarToken(tokens.get(i));
         }
+
     }
 
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void borrarUsuario(Usuario u) throws EntityNotFoundException {
-        try {
-            if (u.getId() != null) {
-                u = em.merge(u);
-                borrarTokens(u);
-                em.remove(u);
-            } else {
-                throw new EntityNotFoundException();
-            }
-        } catch (EntityNotFoundException e) {//Catcheo si se rompe la base de datos. o errores mas especificos
-            throw e;
-        } catch (Exception p) {
-            System.out.println(p.getMessage());
+        if (u.getId() != null) {
+            u = em.merge(u);
+            borrarTokens(u);
+            em.remove(u);
+        } else {
+            throw new EntityNotFoundException("No se encontró el usuario a borrar");
         }
     }
 
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public Usuario buscarUsuario(Long id) {
-        try {
-            return em.find(Usuario.class, id);
-        } catch (EntityNotFoundException e) {
-            //TODO: Mejorar esto
-            return null;
-
-        }
+    public Usuario buscarUsuario(Long id) throws EntityNotFoundException {
+        return em.find(Usuario.class, id);
     }
 
     @Override
@@ -139,9 +117,9 @@ public class PersistenciaSB implements PersistenciaSBLocal {
             }
             em.persist(p);
         } catch (PersistenceException e) {
-            throw new EntityExistsException("Ya existe un proyecto " + p.getNombre() + " para este usuario");
+            throw new EntityExistsException("Ya existe un proyecto " + p.getNombre() + " para este usuario", e);
         } catch (Exception e) {
-            throw new EntityExistsException("Error Inesperado");
+            throw new EntityExistsException("Error Inesperado", e);
         }
     }
 
@@ -163,7 +141,7 @@ public class PersistenciaSB implements PersistenciaSBLocal {
 
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public void borrarProyecto(Proyecto p) {
+    public void borrarProyecto(Proyecto p) throws EJBException{
         try {
             if (p.getId() != null) {
                 p = em.merge(p);
@@ -171,10 +149,8 @@ public class PersistenciaSB implements PersistenciaSBLocal {
             } else {
                 throw new EntityNotFoundException("No existe el proyecto a borrar");
             }
-        } catch (EntityNotFoundException e) {//Catcheo si se rompe la base de datos. o errores mas especificos
-            throw e;
-        } catch (Exception ee) {
-            throw new EJBException("Error Inesperado");
+        } catch (EntityNotFoundException e) {
+            throw new EJBException("Error Inesperado", e);
         }
     }
 
@@ -196,7 +172,7 @@ public class PersistenciaSB implements PersistenciaSBLocal {
         try {
             return (Proyecto) em.createNamedQuery("buscarProyecto").setParameter("nombreP", nombre).setParameter("responsable", responsable).getSingleResult();
         } catch (NoResultException e) {
-            throw new EJBException("No se encontró el proyecto indicado");
+            throw new EJBException("No se encontró el proyecto indicado", e);
         }
     }
 
@@ -206,7 +182,7 @@ public class PersistenciaSB implements PersistenciaSBLocal {
         try {
             return em.createNamedQuery("buscarUsuariosDeProyecto", Usuario.class).setParameter("nombreP", nombre).setParameter("responsable", responsable).getResultList();
         } catch (NoResultException n) {
-            throw new EJBException("No se encontro el proyecto indicado");
+            throw new EJBException("No se encontro el proyecto indicado", n);
         }
     }
 
@@ -226,9 +202,9 @@ public class PersistenciaSB implements PersistenciaSBLocal {
             }
             em.persist(t);
         } catch (PersistenceException e) {
-            throw new EntityExistsException("Ya existe una tarea " + t.getNombre() + " para este proyecto");
+            throw new EntityExistsException("Ya existe una tarea " + t.getNombre() + " para este proyecto", e);
         } catch (Exception e) {
-            throw new EntityExistsException("Error Inesperado");
+            throw new EntityExistsException("Error Inesperado al agregar la tarea", e);
         }
     }
 
@@ -258,22 +234,15 @@ public class PersistenciaSB implements PersistenciaSBLocal {
             } else {
                 throw new EntityNotFoundException("No existe la tarea a borrar");
             }
-        } catch (EntityNotFoundException ex) {//Catcheo si se rompe la base de datos. o errores mas especificos
-            throw ex;
-        } catch (Exception ex) {
-            throw new EJBException("Error Inesperado");
+        } catch (EntityNotFoundException ex) {
+            throw new EJBException(ex.getMessage(), ex);
         }
     }
 
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public Tarea buscarTarea(Long id) {
-        try {
-            return em.find(Tarea.class, id);
-        } catch (Exception e) {
-            //TODO: Mejorar esto
-            return null;
-        }
+            return em.find(Tarea.class, id);//Si no encuentra nada devuelve null
     }
 
     @Override
@@ -282,7 +251,7 @@ public class PersistenciaSB implements PersistenciaSBLocal {
         try {
             return (Tarea) em.createNamedQuery("buscarTarea").setParameter("nombreT", nombre).setParameter("proyecto", proyecto).getSingleResult();
         } catch (NoResultException e) {
-            throw new EJBException("No se encontró la tarea indicada");
+            throw new EJBException("No se encontró la tarea indicada", e);
         }
     }
 
@@ -293,7 +262,7 @@ public class PersistenciaSB implements PersistenciaSBLocal {
             return em.createNamedQuery("buscarTareasDeProyecto", Tarea.class).setParameter("proyecto", p)
                     .getResultList();
         } catch (NoResultException n) {
-            throw new EJBException("No se encontro el proyecto indicado");
+            throw new EJBException("No se encontro el proyecto indicado", n);
         }
     }
 
@@ -303,7 +272,7 @@ public class PersistenciaSB implements PersistenciaSBLocal {
         try {
             return em.createNamedQuery("buscarSubTareasDeTarea", Tarea.class).setParameter("proyecto", p).setParameter("nombreT", nombre).getResultList();
         } catch (NoResultException n) {
-            throw new EJBException("No se encontro la tarea indicada");
+            throw new EJBException("No se encontro la tarea indicada", n);
         }
     }
 
@@ -314,7 +283,7 @@ public class PersistenciaSB implements PersistenciaSBLocal {
             return em.createNamedQuery("buscarResponsablesDeTarea", Usuario.class).setParameter("proyecto", p).setParameter("nombreT", nombre)
                     .getResultList();
         } catch (NoResultException n) {
-            throw new EJBException("No se encontro la tarea indicada");
+            throw new EJBException("No se encontro la tarea indicada", n);
         }
     }
 
@@ -325,7 +294,7 @@ public class PersistenciaSB implements PersistenciaSBLocal {
             return em.createNamedQuery("buscarTareasRealizadasDeUsuario", Tarea.class).setParameter("usuario", u)
                     .getResultList();
         } catch (NoResultException n) {
-            throw new EJBException("No se encontro ninguna tarea indicada");
+            throw new EJBException("No se encontro ninguna tarea indicada", n);
         }
     }
 
@@ -336,67 +305,18 @@ public class PersistenciaSB implements PersistenciaSBLocal {
             return em.createNamedQuery("buscarTareasRealizadasResponsable", Tarea.class).setParameter("usuario", u)
                     .getResultList();
         } catch (NoResultException n) {
-            throw new EJBException("No se encontro ninguna tarea indicada");
+            throw new EJBException("No se encontro ninguna tarea indicada",n);
         }
     }
 
     // </editor-fold>
     //<editor-fold defaultstate="collapsed" desc=" Contexto ">
-    /*@Override
-     public void agregarContexto(Contexto c) {
-     try {
-     em.persist(c);
-     } catch (PersistenceException e) {
-     throw new EntityExistsException("Ya existe un contexto " + c.getNombre()+" para este usuario");
-     } catch (Exception e) {
-     throw new EntityExistsException("Error Inesperado");
-     }
-     }
-
-     @Override
-     public void modificarContexto(Contexto c) {
-     try {
-     if (c.getId() != null) {
-     em.merge(c);
-     } else {
-     em.persist(c);
-     }
-     } catch (Exception e) {
-
-     }
-     }
-
-     @Override
-     public void borrarContexto(Contexto c) {
-     try {
-     if (c.getId() != null) {
-     em.remove(c);
-     } else {
-     //TODO: tirar el mensaje de que no existe en la db
-     }
-     } catch (Exception e) {
-     System.out.println("No se pudo eliminar el contexto");
-     //TODO: Mejorar esto
-     }
-     }
-
-     @Override
-     public Contexto
-     buscarContexto(Long id) {
-     try {
-     return em.find(Contexto.class, id);
-     } catch (Exception e) {
-     //TODO: Mejorar esto
-     return null;
-
-     }
-     }*/
     @Override
     public Contexto buscarContexto(String nombre) {
         try {
             return (Contexto) em.createNamedQuery("buscarContexto").setParameter("nombreC", nombre).getSingleResult();
         } catch (NoResultException e) {
-            return null;
+            return null; //Para estas consultas, no me interesa guardar la excepcion
         }
     }
 
